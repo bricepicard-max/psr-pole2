@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1">
+<meta name="theme-color" content="#0a1628">
+<title>Mon Suivi de Compétences — CAP PSR</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;--bg2:#0f1f35;--bg3:#162840;--card:#1a2f47;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --green:#1D9E75;--green-l:#22c68f;--green-d:rgba(29,158,117,.18);
+  --blue:#2E75B6;--blue-l:#4a9fd4;
+  --orange:#EF9F27;--orange-l:#f5b84a;
+  --red:#E24B4A;--red-l:#f06a69;
+  --text:#dde8f4;--text2:#8fa8c4;--text3:#4a6a88;
+  --r:12px;--r-sm:7px;
+  --n1-bg:#3d1212;--n1:#ff6b6b;--n1-bd:#c0392b;
+  --n2-bg:#3a2506;--n2:#ffb347;--n2-bd:#d4860a;
+  --n3-bg:#0d3320;--n3:#2ecc71;--n3-bd:#1D9E75;
+  --n4-bg:#0a2a1c;--n4:#00d97e;--n4-bd:#00a85a;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif}
+body{display:flex;flex-direction:column;overflow:hidden}
+
+/* ── LOGIN ── */
+#login{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:24px;gap:20px;
+}
+.login-logo{font-size:52px;line-height:1}
+.login-title{font-size:20px;font-weight:700;text-align:center;color:var(--green-l)}
+.login-sub{font-size:13px;color:var(--text3);text-align:center;line-height:1.5}
+.login-card{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:var(--r);padding:24px;width:100%;max-width:340px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.login-lbl{font-size:12px;font-weight:600;color:var(--text2)}
+.login-inp{
+  width:100%;background:var(--bg3);border:2px solid var(--green);
+  color:var(--green-l);border-radius:var(--r-sm);
+  padding:14px 16px;font-size:18px;text-align:center;
+  letter-spacing:.25em;font-family:'DM Mono',monospace;font-weight:600;
+  text-transform:uppercase;
+}
+.login-inp:focus{outline:none;border-color:var(--green-l);box-shadow:0 0 0 3px rgba(29,158,117,.25)}
+.login-btn{
+  background:var(--green);color:#fff;border:none;border-radius:var(--r);
+  padding:14px;font-size:15px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all .15s;
+}
+.login-btn:active{transform:scale(.97)}
+.login-hint{font-size:11px;color:var(--text3);text-align:center;line-height:1.5}
+.login-err{
+  background:var(--n1-bg);border:1px solid var(--n1-bd);
+  color:var(--n1);border-radius:var(--r-sm);padding:10px 12px;
+  font-size:12px;font-weight:600;text-align:center;display:none;
+}
+.login-err.on{display:block}
+.login-sync{font-size:11px;color:var(--text3);text-align:center}
+.login-sync input{
+  width:100%;background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text3);border-radius:var(--r-sm);padding:8px 10px;
+  font-size:10px;font-family:'DM Mono',monospace;margin-top:4px;
+}
+
+/* ── PROFIL ── */
+#profil{flex:1;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch}
+.profil-header{
+  background:linear-gradient(135deg,#0f2027,#162840);
+  padding:20px 16px 16px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:10;
+}
+.profil-nom{font-size:20px;font-weight:700}
+.profil-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.profil-stats{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:8px;margin-top:12px;
+}
+.ps{background:var(--bg3);border-radius:var(--r-sm);padding:10px 8px;text-align:center}
+.ps-v{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;line-height:1}
+.ps-l{font-size:9px;color:var(--text3);margin-top:2px}
+.profil-body{padding:14px;display:flex;flex-direction:column;gap:14px}
+
+/* ── COMPÉTENCES ── */
+.pole-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.pole-header{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 13px;border-bottom:1px solid var(--border);
+}
+.pole-dot{width:8px;height:8px;border-radius:50%}
+.pole-name{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.comp-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 13px;border-bottom:1px solid var(--border);
+}
+.comp-row:last-child{border-bottom:none}
+.comp-id{font-size:11px;font-weight:700;color:var(--text2);width:36px;flex-shrink:0;font-family:'DM Mono',monospace}
+.comp-lbl{flex:1;font-size:11px;color:var(--text2);line-height:1.3}
+.comp-bar{width:80px;height:7px;background:var(--bg3);border-radius:3px;overflow:hidden;flex-shrink:0}
+.comp-fill{height:100%;border-radius:3px;transition:width .6s}
+.comp-niv{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;font-family:'DM Mono',monospace;
+}
+.n0{background:var(--bg3);color:var(--text3)}
+.n1{background:var(--n1-bg);color:var(--n1);border:1px solid var(--n1-bd)}
+.n2{background:var(--n2-bg);color:var(--n2);border:1px solid var(--n2-bd)}
+.n3{background:var(--n3-bg);color:var(--n3);border:1px solid var(--n3-bd)}
+.n4{background:var(--n4-bg);color:var(--n4);border:1px solid var(--n4-bd)}
+.fill1{background:var(--n1);width:25%}
+.fill2{background:var(--n2);width:50%}
+.fill3{background:var(--n3);width:75%}
+.fill4{background:var(--n4);width:100%}
+
+/* ── NOTES ── */
+.notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:7px}
+.note-item{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:8px 5px;text-align:center;
+}
+.note-per{font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px;font-family:'DM Mono',monospace}
+.note-val{font-size:17px;font-weight:700;font-family:'DM Mono',monospace}
+.note-sub{font-size:8px;color:var(--text3)}
+
+/* ── OBS ── */
+.obs-item{
+  display:flex;gap:8px;align-items:flex-start;
+  padding:8px 0;border-bottom:1px solid var(--border);
+}
+.obs-item:last-child{border-bottom:none}
+.obs-date{font-size:10px;color:var(--text3);width:70px;flex-shrink:0;font-family:'DM Mono',monospace}
+.obs-txt{font-size:12px;font-weight:600}
+
+/* ── LÉGENDE ── */
+.legende{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3)}
+.leg-d{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700}
+
+/* ── DÉCONNEXION ── */
+.decoBtn{
+  margin:16px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text3);border-radius:var(--r-sm);padding:10px;
+  font-size:12px;font-weight:600;cursor:pointer;width:calc(100% - 32px);
+  font-family:'DM Sans',sans-serif;text-align:center;
+}
+.decoBtn:active{opacity:.7}
+
+/* ── SECTION TITLE ── */
+.sec-title{
+  font-size:10px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;
+}
+
+/* ── LOADING ── */
+#loading{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:16px;z-index:100;
+}
+.spinner{
+  width:40px;height:40px;border:3px solid var(--border2);
+  border-top-color:var(--green);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{font-size:13px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="load-txt">Chargement des données…</div>
+</div>
+
+<!-- LOGIN -->
+<div id="login" style="display:none">
+  <div class="login-logo">🎓</div>
+  <div class="login-title">Mon Suivi de Compétences</div>
+  <div class="login-sub">CAP PSR · Pôle 2 Service<br>LP François de Mahy</div>
+  
+  <div class="login-card">
+    <div class="login-lbl">Ton code élève :</div>
+    <input class="login-inp" id="code-inp" type="text" maxlength="6"
+      placeholder="XXXXXX" autocomplete="off" autocorrect="off"
+      autocapitalize="characters" spellcheck="false"
+      oninput="this.value=this.value.toUpperCase()"
+      onkeydown="if(event.key==='Enter')login()">
+    <div class="login-err" id="login-err">
+      ❌ Code incorrect — vérifie avec ton professeur
+    </div>
+    <button class="login-btn" onclick="login()">
+      ➜ Accéder à mon suivi
+    </button>
+    <div class="login-hint">
+      Ton code t'a été donné par M. PICARD.<br>
+      Il est personnel et confidentiel.
+    </div>
+  </div>
+
+  <div class="login-sync">
+    <div style="margin-bottom:4px">Code de synchronisation (fourni par le professeur) :</div>
+    <input id="sync-token" type="text" placeholder="ghp_xxxxx" 
+      value="${localStorage.getItem('psr_gh_token')||''}"
+      oninput="localStorage.setItem('psr_gh_token',this.value)">
+    <input id="sync-gist" type="text" placeholder="ID du Gist" style="margin-top:4px"
+      value="${localStorage.getItem('psr_gh_gist')||''}"
+      oninput="localStorage.setItem('psr_gh_gist',this.value)">
+  </div>
+</div>
+
+<!-- PROFIL ÉLÈVE -->
+<div id="profil">
+  <div class="profil-header">
+    <div class="profil-nom" id="p-nom"></div>
+    <div class="profil-sub" id="p-sub"></div>
+    <div class="profil-stats">
+      <div class="ps"><div class="ps-v" id="p-moy" style="color:var(--green-l)">—</div><div class="ps-l">Niveau moyen</div></div>
+      <div class="ps"><div class="ps-v" id="p-note" style="color:var(--orange-l)">—</div><div class="ps-l">Moy. /20</div></div>
+      <div class="ps"><div class="ps-v" id="p-evals" style="color:var(--blue-l)">—</div><div class="ps-l">Évaluations</div></div>
+    </div>
+  </div>
+  <div class="profil-body">
+    <div>
+      <div class="sec-title">Mes compétences</div>
+      <div class="legende">
+        <div class="leg"><div class="leg-d n1">1</div>Novice</div>
+        <div class="leg"><div class="leg-d n2">2</div>Débutant</div>
+        <div class="leg"><div class="leg-d n3">3</div>Compétent</div>
+        <div class="leg"><div class="leg-d n4">4</div>Performant</div>
+      </div>
+    </div>
+    <div id="p-comps"></div>
+    <div id="p-notes-wrap" style="display:none">
+      <div class="sec-title">Mes notes /20 par période</div>
+      <div class="notes-grid" id="p-notes"></div>
+    </div>
+    <div id="p-obs-wrap" style="display:none">
+      <div class="sec-title">Observations du professeur</div>
+      <div id="p-obs"></div>
+    </div>
+  </div>
+  <button class="decoBtn" onclick="deconnect()">🔒 Se déconnecter</button>
+</div>
+
+<script>
+// ── Données ──────────────────────────────────────────────────────
+const CODES_ELEVES = {"1": "ABOANE", "2": "ANQRIT", "3": "BOUJUL", "4": "DAODOR", "5": "EQURAY", "6": "FRARAY", "7": "GOUNOA", "8": "GROCAR", "9": "HOAMAT", "10": "LEPMAE", "13": "MARKYL", "15": "NOUNOA", "16": "PAYMEL", "17": "POICLA", "18": "POIFLO", "20": "SOUMAN", "21": "SOUANR", "22": "TEVOCE", "23": "TRUCEL", "24": "VASMAT", "25": "VAUJUL", "26": "VIRSEL"};
+const ELEVES = [{"id": 1, "nom": "ABOLET", "prenom": "Anelzia", "groupe": "G1", "besoins": "Standard", "actif": true}, {"id": 2, "nom": "ANQUIBOU", "prenom": "Ritchy", "groupe": "G1", "besoins": "Standard", "actif": true}, {"id": 3, "nom": "BOUCHER", "prenom": "Julie", "groupe": "G1", "besoins": "Standard", "actif": true}, {"id": 4, "nom": "DAOUD-LIONI", "prenom": "Dorivan", "groupe": "G1", "besoins": "Standard", "actif": true}, {"id": 5, "nom": "EQUIXOR", "prenom": "Rayan", "groupe": "G1", "besoins": "Standard", "actif": true}, {"id": 6, "nom": "FRAISSE", "prenom": "Rayan", "groupe": "G1", "besoins": "Standard", "actif": true}, {"id": 7, "nom": "GOURSALO", "prenom": "Noam", "groupe": "G1", "besoins": "Standard", "actif": true}, {"id": 8, "nom": "GRONDIN", "prenom": "Carolane", "groupe": "G1", "besoins": "EBEP", "actif": true}, {"id": 9, "nom": "HOAREAU", "prenom": "Mathys", "groupe": "G1", "besoins": "Standard", "actif": true}, {"id": 10, "nom": "LEPINAY", "prenom": "Mae", "groupe": "G1", "besoins": "Standard", "actif": true}, {"id": 13, "nom": "MARTIN", "prenom": "Kyllian", "groupe": "G1", "besoins": "PPS", "actif": true}, {"id": 15, "nom": "NOUCHET", "prenom": "Noa", "groupe": "G2", "besoins": "EBEP", "actif": true}, {"id": 16, "nom": "PAYET", "prenom": "Melody", "groupe": "G2", "besoins": "Standard", "actif": true}, {"id": 17, "nom": "POINY", "prenom": "Clara", "groupe": "G2", "besoins": "Standard", "actif": true}, {"id": 18, "nom": "POINY", "prenom": "Flora", "groupe": "G2", "besoins": "Standard", "actif": true}, {"id": 20, "nom": "SOUEVAMANIEN", "prenom": "Manoah", "groupe": "G2", "besoins": "PAI", "actif": true}, {"id": 21, "nom": "SOUMAILA", "prenom": "Anrildine", "groupe": "G2", "besoins": "Standard", "actif": true}, {"id": 22, "nom": "TEVIKY", "prenom": "Oceane", "groupe": "G2", "besoins": "PPS", "actif": true}, {"id": 23, "nom": "TRULES", "prenom": "Celia", "groupe": "G2", "besoins": "Standard", "actif": true}, {"id": 24, "nom": "VASSOR", "prenom": "Mathis", "groupe": "G2", "besoins": "EBEP", "actif": true}, {"id": 25, "nom": "VAULRY", "prenom": "Julien", "groupe": "G2", "besoins": "PAI+PA", "actif": true}, {"id": 26, "nom": "VIRY", "prenom": "Selena", "groupe": "G2", "besoins": "Standard", "actif": true}];
+const COMPS  = ["C6.1", "C6.2", "C6.3", "C6.4", "C6.5", "C7.1", "C7.2", "C7.3", "C7.4", "C8.1", "C8.2", "C8.3", "C8.4", "C9.1", "C9.2", "C9.3", "C9.4", "C10.1", "C10.2", "C10.3"];
+const LABELS = {"C6.1": "Installer les espaces", "C6.2": "Disposer les produits", "C6.3": "Afficher les informations", "C6.4": "Mettre en valeur les espaces", "C6.5": "Contr\u00f4ler et r\u00e9approvisionner", "C7.1": "Accueillir le client", "C7.2": "Identifier les besoins", "C7.3": "Prendre la commande", "C7.4": "G\u00e9rer les objections", "C8.1": "Pr\u00e9parer la commande", "C8.2": "Conditionner \u00e0 emporter", "C8.3": "Servir les repas", "C8.4": "Rep\u00e9rer les anomalies", "C9.1": "Ouvrir/cl\u00f4turer la caisse", "C9.2": "Saisir les prestations", "C9.3": "Traiter les encaissements", "C9.4": "Communiquer au poste caisse", "C10.1": "Laver la vaisselle", "C10.2": "Nettoyage et d\u00e9sinfection", "C10.3": "\u00c9vacuer les d\u00e9chets"};
+
+const POLES = {
+  C6:{name:"C6 · Mise en place",color:"#1D9E75"},
+  C7:{name:"C7 · Accueil et conseil",color:"#2E75B6"},
+  C8:{name:"C8 · Service",color:"#7030A0"},
+  C9:{name:"C9 · Encaissement",color:"#EF9F27"},
+  C10:{name:"C10 · Entretien",color:"#E24B4A"},
+};
+
+const GS_FILENAME = 'psr_pole2_data.json';
+let JOURNAL = [];
+let ELEVE_ID = null;
+
+// ── Init ─────────────────────────────────────────────────────────
+async function init() {
+  // Charger le journal depuis GitHub Gist
+  const token  = localStorage.getItem('psr_gh_token') || '';
+  const gistId = localStorage.getItem('psr_gh_gist')  || '';
+
+  if (token && gistId) {
+    try {
+      const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      if (r.ok) {
+        const data = await r.json();
+        const f = data.files && data.files[GS_FILENAME];
+        if (f && f.content) {
+          const remote = JSON.parse(f.content);
+          // Décompresser si format compact
+          JOURNAL = (remote.journal || []).map(j => {
+            if (j.s !== undefined) {
+              const e = ELEVES.find(x => x.id === j.i) || {};
+              return {
+                date:j.d||'', seanceId:j.s||'', type:j.t||'',
+                eleveId:j.i||0, nom:j.m||'', groupe:j.g||'',
+                comp:j.c||'', niv:j.n||0, note20:j.x!=null?j.x:null,
+                obs:j.o||''
+              };
+            }
+            return j;
+          });
+        }
+      }
+    } catch(e) {
+      console.log('Erreur chargement Gist:', e.message);
+    }
+  }
+
+  // Vérifier si déjà connecté
+  const savedId = sessionStorage.getItem('psr_elv_id');
+  if (savedId && CODES_ELEVES[savedId]) {
+    ELEVE_ID = parseInt(savedId);
+    showProfil();
+  } else {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('login').style.display   = 'flex';
+  }
+}
+
+// ── Login ─────────────────────────────────────────────────────────
+function login() {
+  const code = document.getElementById('code-inp').value.trim().toUpperCase();
+  const err  = document.getElementById('login-err');
+  
+  // Chercher l'élève correspondant au code
+  const found = Object.entries(CODES_ELEVES).find(([id, c]) => c === code);
+  
+  if (!found) {
+    err.classList.add('on');
+    document.getElementById('code-inp').style.borderColor = 'var(--red)';
+    setTimeout(() => {
+      err.classList.remove('on');
+      document.getElementById('code-inp').style.borderColor = 'var(--green)';
+    }, 3000);
+    return;
+  }
+
+  ELEVE_ID = parseInt(found[0]);
+  sessionStorage.setItem('psr_elv_id', ELEVE_ID);
+  showProfil();
+}
+
+// ── Déconnexion ───────────────────────────────────────────────────
+function deconnect() {
+  ELEVE_ID = null;
+  sessionStorage.removeItem('psr_elv_id');
+  document.getElementById('profil').style.display = 'none';
+  document.getElementById('login').style.display  = 'flex';
+  document.getElementById('code-inp').value = '';
+}
+
+// ── Afficher le profil ─────────────────────────────────────────────
+function showProfil() {
+  const e = ELEVES.find(x => x.id === ELEVE_ID);
+  if (!e) { deconnect(); return; }
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('login').style.display   = 'none';
+  document.getElementById('profil').style.display  = 'block';
+
+  // Données de l'élève
+  const rows    = JOURNAL.filter(j => j.eleveId === ELEVE_ID);
+  const absRows = rows.filter(j => j.comp === 'ABS');
+  const evalRows= rows.filter(j => j.comp !== 'ABS' && j.niv > 0);
+
+  // Niveau max par comp
+  const maxNiv = {};
+  evalRows.forEach(j => {
+    if (!maxNiv[j.comp] || j.niv > maxNiv[j.comp]) maxNiv[j.comp] = j.niv;
+  });
+
+  // Stats
+  const nivVals = Object.values(maxNiv).filter(n => n > 0);
+  const moy     = nivVals.length ? Math.round(nivVals.reduce((a,b)=>a+b,0)/nivVals.length*10)/10 : '—';
+  const notes   = rows.filter(j => j.note20 != null && j.note20 !== '');
+  const moyNote = notes.length ? Math.round(notes.reduce((a,b)=>a+(parseFloat(b.note20)||0),0)/notes.length*10)/10 : '—';
+
+  document.getElementById('p-nom').textContent   = e.nom + ' ' + e.prenom;
+  document.getElementById('p-sub').textContent   = 'C1PSR2 · ' + e.groupe + (e.actif ? '' : ' · Inactif');
+  document.getElementById('p-moy').textContent   = moy || '—';
+  document.getElementById('p-note').textContent  = moyNote !== '—' ? moyNote + '/20' : '—';
+  document.getElementById('p-evals').textContent = evalRows.length;
+
+  // ── Compétences par pôle ───────────────────────────────────────
+  let compHTML = '';
+  let currentPole = '';
+  COMPS.forEach(comp => {
+    const pole = comp.substring(0,2);
+    const poleInfo = POLES[pole] || {name:pole,color:'#888'};
+    const niv  = maxNiv[comp] || 0;
+
+    if (pole !== currentPole) {
+      if (currentPole) compHTML += '</div>';
+      currentPole = pole;
+      compHTML += `
+        <div class="pole-card" style="margin-bottom:10px">
+          <div class="pole-header">
+            <div class="pole-dot" style="background:${poleInfo.color}"></div>
+            <div class="pole-name" style="color:${poleInfo.color}">${poleInfo.name}</div>
+          </div>`;
+    }
+
+    const fillClass = niv > 0 ? 'fill'+niv : '';
+    compHTML += `
+      <div class="comp-row">
+        <div class="comp-id">${comp}</div>
+        <div class="comp-lbl">${LABELS[comp]||comp}</div>
+        <div class="comp-bar"><div class="comp-fill ${fillClass}"></div></div>
+        <div class="comp-niv n${niv}">${niv||'·'}</div>
+      </div>`;
+  });
+  if (currentPole) compHTML += '</div>';
+  document.getElementById('p-comps').innerHTML = compHTML;
+
+  // ── Notes par période ──────────────────────────────────────────
+  const notesByPer = {};
+  notes.forEach(j => {
+    const per = (j.seq||'').split('-')[0] || j.seanceId.substring(0,2) || '?';
+    if (!notesByPer[per]) notesByPer[per] = [];
+    notesByPer[per].push(parseFloat(j.note20));
+  });
+  const pers = Object.keys(notesByPer).sort();
+  if (pers.length) {
+    document.getElementById('p-notes-wrap').style.display = 'block';
+    document.getElementById('p-notes').innerHTML = pers.map(per => {
+      const ns  = notesByPer[per];
+      const m   = Math.round(ns.reduce((a,b)=>a+b,0)/ns.length*10)/10;
+      const col = m>=14?'var(--n4)':m>=10?'var(--orange-l)':m>=8?'#f5a623':'var(--n1)';
+      return `<div class="note-item">
+        <div class="note-per">${per}</div>
+        <div class="note-val" style="color:${col}">${m}</div>
+        <div class="note-sub">${ns.length} note${ns.length>1?'s':''}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Observations ───────────────────────────────────────────────
+  const obsRows = rows.filter(j => j.obs && j.obs !== '' && j.obs !== '🏠 Absent excusé').slice(-10).reverse();
+  if (obsRows.length) {
+    document.getElementById('p-obs-wrap').style.display = 'block';
+    document.getElementById('p-obs').innerHTML = obsRows.map(j => {
+      const col = j.obs.includes('Félicitations')||j.obs.includes('Très bonne') ? 'var(--n4)' :
+                  j.obs.includes('progrès') ? 'var(--green-l)' :
+                  j.obs.includes('revoir')||j.obs.includes('Difficultés') ? 'var(--n1)' : 'var(--text2)';
+      return `<div class="obs-item">
+        <div class="obs-date">${j.date}</div>
+        <div class="obs-txt" style="color:${col}">${j.obs}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+init();
+</script>
+</body>
+</html>
