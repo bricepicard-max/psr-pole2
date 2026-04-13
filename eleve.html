@@ -282,19 +282,40 @@ async function init() {
         const f = data.files && data.files[GS_FILENAME];
         if (f && f.content) {
           const remote = JSON.parse(f.content);
-          // Décompresser si format compact
+          // Décompresser format compact (champs courts d,s,t,i,m,g,c,n,x,f,o)
+          // OU garder format complet (champs longs date,seanceId,etc.)
           JOURNAL = (remote.journal || []).map(j => {
-            if (j.s !== undefined) {
-              const e = ELEVES.find(x => x.id === j.i) || {};
+            if (j.s !== undefined && j.d !== undefined) {
+              // Format compact → format complet
               return {
-                date:j.d||'', seanceId:j.s||'', type:j.t||'',
-                eleveId:j.i||0, nom:j.m||'', groupe:j.g||'',
-                comp:j.c||'', niv:j.n||0, note20:j.x!=null?j.x:null,
-                obs:j.o||''
+                date:     j.d||'',
+                seanceId: j.s||'',
+                type:     j.t||'',
+                eleveId:  parseInt(j.i)||0,
+                nom:      j.m||'',
+                groupe:   j.g||'',
+                comp:     j.c||'',
+                niv:      parseInt(j.n)||0,
+                note20:   j.x!=null ? parseFloat(j.x) : null,
+                noteFr:   j.f!=null ? parseFloat(j.f) : null,
+                obs:      j.o||''
               };
             }
-            return j;
+            // Format complet → garder tel quel
+            return {
+              date:     j.date||'',
+              seanceId: j.seanceId||'',
+              type:     j.type||'',
+              eleveId:  parseInt(j.eleveId)||0,
+              nom:      j.nom||'',
+              groupe:   j.groupe||'',
+              comp:     j.comp||'',
+              niv:      parseInt(j.niv)||0,
+              note20:   j.note20!=null ? parseFloat(j.note20) : null,
+              obs:      j.obs||''
+            };
           });
+          console.log('Journal chargé:', JOURNAL.length, 'entrées');
         }
       }
     } catch(e) {
