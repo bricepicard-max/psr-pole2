@@ -259,10 +259,36 @@ let ELEVE_ID = null;
 
 // ── Init ─────────────────────────────────────────────────────────
 async function init() {
-  // Charger le journal depuis GitHub Gist
-  // Identifiants intégrés — aucune config nécessaire pour l'élève
-  const token  = ['ghp_dZ1O','5NR5dofyii1B','gkHMiGntFRLWkL3K3joQ'].join('');
-  const gistId = 'ee2b4b6c67e4ee10916994b563e60437';
+  // Charger via proxy Google Apps Script — aucun token dans le code
+  const PROXY_URL = 'https://script.google.com/macros/s/AKfycbzc-mvrhLrLu8_WeqW1QL3ZoKO1bouzR4TTKP95lp0CXEz7ETp4ftCuWLwfDWqk5Qo/exec';
+
+  try {
+    if (PROXY_URL && PROXY_URL !== 'https://script.google.com/macros/s/AKfycbzc-mvrhLrLu8_WeqW1QL3ZoKO1bouzR4TTKP95lp0CXEz7ETp4ftCuWLwfDWqk5Qo/exec') {
+      const r = await fetch(PROXY_URL);
+      if (r.ok) {
+        const data = await r.json();
+        if (data.status === 'ok' && data.journal && data.journal.length > 0) {
+          JOURNAL = data.journal.map(j => {
+            if (j.s !== undefined) {
+              return {date:j.d||'',seanceId:j.s||'',type:j.t||'',
+                eleveId:parseInt(j.i)||0,nom:j.m||'',groupe:j.g||'',
+                comp:j.c||'',niv:parseInt(j.n)||0,
+                note20:j.x!=null?parseFloat(j.x):null,obs:j.o||''};
+            }
+            return {date:j.date||'',seanceId:j.seanceId||'',type:j.type||'',
+              eleveId:parseInt(j.eleveId)||0,nom:j.nom||'',groupe:j.groupe||'',
+              comp:j.comp||'',niv:parseInt(j.niv)||0,
+              note20:j.note20!=null?parseFloat(j.note20):null,obs:j.obs||''};
+          });
+          console.log('Journal via proxy:', JOURNAL.length, 'entrées');
+        }
+      }
+    }
+  } catch(e) { console.log('Erreur proxy:', e.message); }
+
+  // ANCIEN CODE SUPPRIMÉ — plus de token dans le code public
+  const token = ''; const gistId = '';
+  if (false) {
 
   if (token && gistId) {
     try {
@@ -316,7 +342,7 @@ async function init() {
     } catch(e) {
       console.log('Erreur chargement Gist:', e.message);
     }
-  }
+  } // fin if(false)
 
   // Vérifier si déjà connecté
   const savedId = sessionStorage.getItem('psr_elv_id');
