@@ -60,12 +60,8 @@ body{display:flex;flex-direction:column;overflow:hidden}
   font-size:12px;font-weight:600;text-align:center;display:none;
 }
 .login-err.on{display:block}
-.login-sync{font-size:11px;color:var(--text3);text-align:center}
-.login-sync input{
-  width:100%;background:var(--bg3);border:1px solid var(--border2);
-  color:var(--text3);border-radius:var(--r-sm);padding:8px 10px;
-  font-size:10px;font-family:'DM Mono',monospace;margin-top:4px;
-}
+
+
 
 /* ── PROFIL ── */
 #profil{flex:1;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch}
@@ -204,9 +200,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
     </div>
   </div>
 
-  <div class="login-sync">
-    <div style="margin-bottom:4px">Code de synchronisation (fourni par le professeur) :</div>
-    <input id="sync-token" type="text" placeholder="ghp_xxxxx" 
+      <input id="sync-token" type="text" placeholder="ghp_xxxxx" 
       value="${localStorage.getItem('psr_gh_token')||''}"
       oninput="localStorage.setItem('psr_gh_token',this.value)">
     <input id="sync-gist" type="text" placeholder="ID du Gist" style="margin-top:4px"
@@ -271,8 +265,9 @@ let ELEVE_ID = null;
 // ── Init ─────────────────────────────────────────────────────────
 async function init() {
   // Charger le journal depuis GitHub Gist
-  const token  = localStorage.getItem('psr_gh_token') || '';
-  const gistId = localStorage.getItem('psr_gh_gist')  || '';
+  // Identifiants intégrés — aucune config nécessaire pour l'élève
+  const token  = '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';
+  const gistId = 'ee2b4b6c67e4ee10916994b563e60437';
 
   if (token && gistId) {
     try {
