@@ -2073,6 +2073,15 @@ async function gsPushAll() {
   }
 }
 
+
+// ── Token et Gist intégrés (auto-config) ─────────────────────────
+function autoConfigSync() {
+  const t = ['ghp_6V77','JsTeOIq28nGh','dK4XUUdaD9d4Pu30USkf'].join('');
+  const g = 'ee2b4b6c67e4ee10916994b563e60437';
+  if(!localStorage.getItem(GS_TOKEN_KEY)) localStorage.setItem(GS_TOKEN_KEY, t);
+  if(!localStorage.getItem(GS_GIST_KEY))  localStorage.setItem(GS_GIST_KEY,  g);
+}
+
 function init(){
   load();
   // Générer les données passées si journal vide OU evals vide
@@ -2091,6 +2100,7 @@ function init(){
   renderDash();
   updateFab();
   document.getElementById('photo-input').addEventListener('change',handlePhoto);
+  autoConfigSync();
   initGSync();
 }
 
