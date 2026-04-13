@@ -2009,6 +2009,70 @@ function genererDonneesPassees() {
   return added;
 }
 
+
+// ── Envoyer TOUT le journal vers le Gist (sans limite) ───────────
+async function gsPushAll() {
+  if(!gsConfigured()) { showToast('⚠️ Configurer la sync GitHub d abord'); return; }
+  if(GS_RUNNING) { showToast('⏳ Sync déjà en cours…'); return; }
+  GS_RUNNING = true;
+  gsDot('run');
+  gsNotif('⏳ Envoi de toutes les données…', 'load', 0);
+  showToast('⏳ Envoi en cours — ' + S.journal.length + ' évaluations…');
+
+  try {
+    // Tout le journal sans filtre auto, sans limite
+    const all = S.journal.map(j => ({
+      d: j.date||'',
+      s: j.seanceId||'',
+      t: j.type||'',
+      i: j.eleveId||0,
+      m: (j.nom||'').substring(0,25),
+      g: j.groupe||'',
+      c: j.comp||'',
+      n: j.niv||0,
+      x: j.note20!=null ? j.note20 : null,
+      o: (j.obs||'').substring(0,25),
+    }));
+
+    const payload = {
+      journal:    all,
+      evals:      {},
+      v:          2,
+      updated_at: new Date().toISOString(),
+    };
+
+    const r = await fetch('https://api.github.com/gists/' + gsGistId(), {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'token ' + gsToken(),
+        'Content-Type':  'application/json',
+        'Accept':        'application/vnd.github.v3+json'
+      },
+      body: JSON.stringify({
+        files: { [GS_FILENAME]: { content: JSON.stringify(payload) } }
+      })
+    });
+
+    if(r.ok) {
+      gsSetLastSync();
+      gsDot('ok');
+      gsNotif('☁️ ' + all.length + ' évaluations envoyées', 'ok', 4000);
+      showToast('✅ ' + all.length + ' évaluations envoyées vers le Gist');
+    } else {
+      const err = await r.json().catch(()=>({}));
+      gsDot('err');
+      gsNotif('❌ Erreur : ' + (err.message||r.status), 'err');
+      showToast('❌ Erreur : ' + (err.message||r.status));
+    }
+  } catch(e) {
+    gsDot('err');
+    gsNotif('❌ Erreur réseau', 'err');
+    showToast('❌ Erreur réseau');
+  } finally {
+    GS_RUNNING = false;
+  }
+}
+
 function init(){
   load();
   // Générer les données passées si journal vide OU evals vide
@@ -2855,6 +2919,7 @@ function renderBilan(){
         <button class="btn btn-lg btn-green" onclick="exportCSV()">📥 Journal complet (CSV)</button>
         <button class="btn btn-lg btn-blue" onclick="exportRecap()">📊 Récap classe (CSV)</button>
         <button class="btn btn-lg btn-orange" onclick="exportNotes()">📝 Notes /20 par élève (CSV)</button>
+        <button class="btn btn-lg btn-green" onclick="gsPushAll()">☁️ Tout envoyer vers le Gist (appli élève)</button>
         <button class="btn btn-lg btn-red" style="margin-top:4px" onclick="openModal('reset')">🗑 Réinitialiser les données</button>
         <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
           <button class="btn btn-sm" style="background:var(--purple-d);color:var(--purple-l);border:1px solid rgba(168,85,247,.2);font-size:11px" onclick="go('admin')">⚙️ Espace administrateur</button>
